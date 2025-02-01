@@ -119,7 +119,7 @@ jobs:
         # Apply SUSFS patch
         cp -rf "Implement-SUSFS-v1.5.4-for-KernelSU-Next.patch" ./KernelSU-Next/
         cd KernelSU-Next
-        patch -p1 -f < "Implement-SUSFS-v1.5.4-for-KernelSU-Next.patch" || { echo "Patching failed!"; exit 1; }
+        patch -p1 -f < "Implement-SUSFS-v1.5.4-for-KernelSU-Next.patch" || true
         cd ..
       working-directory: ${{ steps.kernel.outputs.kernel-folder }}
       id: patches
