@@ -156,8 +156,8 @@ jobs:
 
         # Define patch paths (cleaner organization)
         KSU_SUSFS_PATCH_1="../susfs4ksu/kernel_patches/KernelSU/10_enable_susfs_for_ksu.patch"
-        SUSFS_PATCH_2="../susfs4ksu/kernel_patches/50_add_susfs_in_kernel-4.19.patch"
-        HIDE_STUFF_PATCH="../kernel_patches/69_hide_stuff.patch"
+        SUSFS_PATCH_2="../../../susfs4ksu/kernel_patches/50_add_susfs_in_kernel-4.19.patch"
+        HIDE_STUFF_PATCH="../../../kernel_patches/69_hide_stuff.patch"
 
         # --- Debugging around fs/Makefile patch ---
         echo "Listing fs/Makefile before patch:"
