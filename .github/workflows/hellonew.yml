@@ -125,7 +125,7 @@ jobs:
 
         # Apply KernelSU Next
         rm -rf KernelSU-Next
-        curl -LSs "https://raw.githubusercontent.com/rifsxd/KernelSU-Next/next/kernel/setup.sh" | bash -s next-susfs
+        curl -LSs "https://raw.githubusercontent.com/rifsxd/KernelSU-Next/next/kernel/setup.sh" | bash -s next
 
         # Define patch paths (cleaner organization)
         KSU_SUSFS_PATCH_1="susfs4ksu/kernel_patches/KernelSU/10_enable_susfs_for_ksu.patch"
@@ -139,10 +139,10 @@ jobs:
 
         # Apply patches (remove || true and handle potential errors properly if needed)
         cd KernelSU-Next
-        patch -p1 < 10_enable_susfs_for_ksu.patch || true
+        patch -p1 -N < 10_enable_susfs_for_ksu.patch || true
         cd ../common
-        patch -p1 < 50_add_susfs_in_kernel-4.19.patch || true
-        patch -p1 -F 3 < 69_hide_stuff.patch || true
+        patch -p1 -N < 50_add_susfs_in_kernel-4.19.patch || true
+        patch -p1 -F 3 -N < 69_hide_stuff.patch || true
 
         # Remove defconfig check (if still needed)
         sed -i '2s/check_defconfig//' ./common/build.config.gki
