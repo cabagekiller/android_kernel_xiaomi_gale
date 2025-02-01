@@ -115,7 +115,8 @@ jobs:
       run: |
         # Apply KernelSU Next
         rm -rf KernelSU-Next
-        curl -LSs "https://raw.githubusercontent.com/rifsxd/KernelSU-Next/next/kernel/setup.sh" | bash -s next-susfs-4.19
+        curl -LSs "https://raw.githubusercontent.com/rifsxd/KernelSU-Next/next/kernel/setup.sh" | bash -s next
+        bash $GITHUB_WORKSPACE/patches/patches.sh
       working-directory: ${{ steps.kernel.outputs.kernel-folder }}
       id: patches
     - name: Building kernel
