@@ -111,16 +111,29 @@ jobs:
         echo "kernel-folder=$(pwd)/kernel_tree" >> $GITHUB_OUTPUT
       working-directory: ${{ steps.workspace.outputs.workspace-folder }}
       id: kernel
+    - name: Clone Required Repositories
+      run: |
+        git clone https://gitlab.com/simonpunk/susfs4ksu.git -b kernel-4.19
+        git clone https://github.com/TheWildJames/kernel_patches.git
     - name: Apply KernelSU and SUSFS patches
       run: |
         # Apply KernelSU Next
         rm -rf KernelSU-Next
         curl -LSs "https://raw.githubusercontent.com/rifsxd/KernelSU-Next/next/kernel/setup.sh" | bash -s next-susfs
         # Apply SUSFS patch
-        cp -rf "Implement-SUSFS-v1.5.4-for-KernelSU-Next.patch" ./KernelSU-Next/
+        mkdir -p ./common/fs
+        mkdir -p ./common/include/linux
+        cp ./susfs4ksu/kernel_patches/KernelSU/10_enable_susfs_for_ksu.patch ./KernelSU-Next/
+        cp ./susfs4ksu/kernel_patches/50_add_susfs_in_kernel-4.19.patch ./common/
+        cp ./kernel_patches/69_hide_stuff.patch ./common/
+        # Apply patches
         cd KernelSU-Next
-        patch -p1 -f < "Implement-SUSFS-v1.5.4-for-KernelSU-Next.patch" || true
-        cd ..
+        patch -p1 < 10_enable_susfs_for_ksu.patch || true
+        cd ../common
+        patch -p1 < 50_add_susfs_in_kernel-4.19.patch || true
+        patch -p1 -F 3 < 69_hide_stuff.patch || true
+        sed -i '/obj-$(CONFIG_KSU_SUSFS_SUS_SU) += sus_su.o/d' ./fs/Makefile
+        
       working-directory: ${{ steps.kernel.outputs.kernel-folder }}
       id: patches
     - name: Building kernel
