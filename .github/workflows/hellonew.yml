@@ -141,7 +141,7 @@ jobs:
         cd KernelSU-Next
         patch -p1 -N < 10_enable_susfs_for_ksu.patch || true
         cd ../common
-        patch -p2 -N < 50_add_susfs_in_kernel-4.19.patch || true
+        patch -p0 -N < 50_add_susfs_in_kernel-4.19.patch || true
         patch -p1 -F 3 -N < 69_hide_stuff.patch || true
 
         # Remove defconfig check (if still needed)
