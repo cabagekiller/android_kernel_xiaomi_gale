@@ -1,4 +1,4 @@
-name: Kernel Build (gale) - SUSFS + KSU NEXT | clang-r547379
+name: Kernel Builddwadawd (gale) - SUSFS + KSU NEXT | clang-r547379
 
 on:
   pull_request:
