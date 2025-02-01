@@ -1,4 +1,4 @@
-name: Kernel Build (gale)testing - SUSFS + KSU NEXT
+name: Kernel Build (gale) - SUSFS + KSU NEXT | clang-r547379
 
 on:
   pull_request:
@@ -115,6 +115,13 @@ jobs:
         tar -xf clang.tar.gz -C clang
         echo "Clang downloaded and extracted."
 
+    - name: Free disk space (optional - consider removing if not needed)
+      if: false # Set to 'true' to enable if you suspect disk space issues
+      run: |
+          df -h # Check disk space
+          sudo rm -rf /usr/share/dotnet /opt/ghc /usr/local/share/boost-build # Example cleanup - adjust as needed
+          df -h # Check disk space again
+
     - name: Setup ccache
       uses: hendrikmuhs/ccache-action@v1.2
       with:
@@ -134,19 +141,14 @@ jobs:
         git clone https://github.com/TheWildJames/kernel_patches.git ../kernel_patches
         mkdir -p common/fs common/include/linux # Create directories upfront
 
-    - name: Debug - List common/ and fs/ directories
-      if: always() # Always run for debugging even if previous steps fail
-      run: |
-        echo "Listing kernel_tree/common directory:"
-        tree -L 2 ${{ steps.kernel.outputs.kernel-folder }}/common
-        echo "Listing kernel_tree/fs directory:"
-        tree -L 2 ${{ steps.kernel.outputs.kernel-folder }}/fs
-
     - name: Apply KernelSU and SUSFS patches
       run: |
         set -e
         KERNEL_FOLDER="${{ steps.kernel.outputs.kernel-folder }}"
-        cd "$KERNEL_FOLDER"
+        cd "$KERNEL_FOLDER" # Explicitly change to kernel root directory
+
+        echo "Current working directory before patching:"
+        pwd # Log current working directory
 
         # Apply KernelSU Next
         rm -rf KernelSU-Next
@@ -157,35 +159,45 @@ jobs:
         SUSFS_PATCH_2="../susfs4ksu/kernel_patches/50_add_susfs_in_kernel-4.19.patch"
         HIDE_STUFF_PATCH="../kernel_patches/69_hide_stuff.patch"
 
-        # Apply patches (remove || true and handle potential errors properly if needed)
+        # --- Debugging around fs/Makefile patch ---
+        echo "Listing fs/Makefile before patch:"
+        ls -l fs/Makefile # Check if fs/Makefile exists
+
+        cd common # Go into common directory for SUSFS patches
+        echo "Current working directory before SUSFS patches:"
+        pwd # Log current working directory
+
+        patch -p1 -N < "$SUSFS_PATCH_2" # Try -p1 again for SUSFS patches
+        patch -p1 -F 3 -N < "$HIDE_STUFF_PATCH"
+        cd .. # Go back to kernel root after SUSFS patches! <---- IMPORTANT CHANGE
+
         cd KernelSU-Next
         patch -p1 -N < "$KSU_SUSFS_PATCH_1" # Apply directly, non-interactive, fail on error
-        cd ../common
-        patch -p0 -N < "$SUSFS_PATCH_2" # Try -p0 for SUSFS patches
-        patch -p1 -F 3 -N < "$HIDE_STUFF_PATCH" # Keep -p1 for hide_stuff for now
+        cd .. # Go back to kernel root
+
 
         sed -i '2s/check_defconfig//' ./common/build.config.gki # Corrected path to ./common/build.config.gki
         sed -i '/obj-$(CONFIG_KSU_SUSFS_SUS_SU) += sus_su.o/d' ./fs/Makefile # Keep this line
 
         # Add SUSFS configuration settings (using a block echo for clarity) - Keep this section
         cat >> ./common/arch/arm64/configs/gki_defconfig <<EOF
-        CONFIG_KSU=y
-        CONFIG_KSU_SUSFS=y
-        CONFIG_KSU_SUSFS_HAS_MAGIC_MOUNT=y
-        CONFIG_KSU_SUSFS_SUS_PATH=y
-        CONFIG_KSU_SUSFS_SUS_MOUNT=y
-        CONFIG_KSU_SUSFS_AUTO_ADD_SUS_KSU_DEFAULT_MOUNT=y
-        CONFIG_KSU_SUSFS_AUTO_ADD_SUS_BIND_MOUNT=y
-        CONFIG_KSU_SUSFS_SUS_KSTAT=y
-        CONFIG_KSU_SUSFS_SUS_OVERLAYFS=y
-        CONFIG_KSU_SUSFS_TRY_UMOUNT=y
-        CONFIG_KSU_SUSFS_AUTO_ADD_TRY_UMOUNT_FOR_BIND_MOUNT=y
-        CONFIG_KSU_SUSFS_SPOOF_UNAME=y
-        CONFIG_KSU_SUSFS_ENABLE_LOG=y
-        CONFIG_KSU_SUSFS_HIDE_KSU_SUSFS_SYMBOLS=y
-        CONFIG_KSU_SUSFS_SPOOF_CMDLINE_OR_BOOTCONFIG=y
-        CONFIG_KSU_SUSFS_OPEN_REDIRECT=y
-        EOF
+       CONFIG_KSU=y
+       CONFIG_KSU_SUSFS=y
+       CONFIG_KSU_SUSFS_HAS_MAGIC_MOUNT=y
+       CONFIG_KSU_SUSFS_SUS_PATH=y
+       CONFIG_KSU_SUSFS_SUS_MOUNT=y
+       CONFIG_KSU_SUSFS_AUTO_ADD_SUS_KSU_DEFAULT_MOUNT=y
+       CONFIG_KSU_SUSFS_AUTO_ADD_SUS_BIND_MOUNT=y
+       CONFIG_KSU_SUSFS_SUS_KSTAT=y
+       CONFIG_KSU_SUSFS_SUS_OVERLAYFS=y
+       CONFIG_KSU_SUSFS_TRY_UMOUNT=y
+       CONFIG_KSU_SUSFS_AUTO_ADD_TRY_UMOUNT_FOR_BIND_MOUNT=y
+       CONFIG_KSU_SUSFS_SPOOF_UNAME=y
+       CONFIG_KSU_SUSFS_ENABLE_LOG=y
+       CONFIG_KSU_SUSFS_HIDE_KSU_SUSFS_SYMBOLS=y
+       CONFIG_KSU_SUSFS_SPOOF_CMDLINE_OR_BOOTCONFIG=y
+       CONFIG_KSU_SUSFS_OPEN_REDIRECT=y
+       EOF
 
 
     - name: Building kernel
