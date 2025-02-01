@@ -115,13 +115,6 @@ jobs:
         tar -xf clang.tar.gz -C clang
         echo "Clang downloaded and extracted."
 
-    - name: Free disk space (optional - consider removing if not needed)
-      if: false # Set to 'true' to enable if you suspect disk space issues
-      run: |
-          df -h # Check disk space
-          sudo rm -rf /usr/share/dotnet /opt/ghc /usr/local/share/boost-build # Example cleanup - adjust as needed
-          df -h # Check disk space again
-
     - name: Setup ccache
       uses: hendrikmuhs/ccache-action@v1.2
       with:
@@ -156,8 +149,8 @@ jobs:
 
         # Define patch paths (cleaner organization)
         KSU_SUSFS_PATCH_1="../susfs4ksu/kernel_patches/KernelSU/10_enable_susfs_for_ksu.patch"
-        SUSFS_PATCH_2="../../../susfs4ksu/kernel_patches/50_add_susfs_in_kernel-4.19.patch"
-        HIDE_STUFF_PATCH="../../../kernel_patches/69_hide_stuff.patch"
+        SUSFS_PATCH_2="../../susfs4ksu/kernel_patches/50_add_susfs_in_kernel-4.19.patch"
+        HIDE_STUFF_PATCH="../../kernel_patches/69_hide_stuff.patch"
 
         # --- Debugging around fs/Makefile patch ---
         echo "Listing fs/Makefile before patch:"
