@@ -139,7 +139,6 @@ jobs:
         set -e
         KERNEL_FOLDER="${{ steps.kernel.outputs.kernel-folder }}"
         cd "$KERNEL_FOLDER" # Explicitly change to kernel root directory
-        cd ..
 
         echo "Current working directory before patching:"
         pwd # Log current working directory
