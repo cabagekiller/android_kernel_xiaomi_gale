@@ -263,7 +263,7 @@ jobs:
         EOF
     - name: Make the script files executable and run it
       run: |
-         cd "$KERNEL_FOLDER"
+         cd /home/runner/work/android_kernel_xiaomi_gale/android_kernel_xiaomi_gale/workspace/kernel_tree
          echo "Current working directory after cd KERNEL_FOLDER:"
          pwd
          # Corrected path to patches.sh - now inside 'patches_repo' directory
