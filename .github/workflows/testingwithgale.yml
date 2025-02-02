@@ -237,12 +237,12 @@ jobs:
         echo "--- Applying fs/Makefile and build.config.gki changes (Kernel Root Dir) ---"
         echo "Current working directory (Kernel Root) for Makefile/config changes:"
         pwd
-        sed -i '2s/check_defconfig//' ./common/build.config.gki # Operate on build.config.gki from kernel root
+        sed -i '2s/check_defconfig//' ./build.config.gki # Operate on build.config.gki from kernel root
         sed -i '/obj-$(CONFIG_KSU_SUSFS_SUS_SU) += sus_su.o/d' ./fs/Makefile # Corrected path to ./fs/Makefile
         echo "fs/Makefile and build.config.gki changes applied."
 
         # Add SUSFS configuration settings (using a block echo for clarity) - Keep this section
-        cat >> ./common/arch/arm64/configs/gki_defconfig <<EOF
+        cat >> ./arch/arm64/configs/gki_defconfig <<EOF
         CONFIG_KSU=y
         CONFIG_KSU_SUSFS=y
         CONFIG_KSU_SUSFS_HAS_MAGIC_MOUNT=y
