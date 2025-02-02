@@ -163,8 +163,8 @@ jobs:
         APK_SIGN_C_FIX_SRC="$KERNEL_PATCHES_FOLDER/apk_sign.c_fix.patch"
         MAKEFILE_FIX_SRC="$KERNEL_PATCHES_FOLDER/Makefile_fix.patch"
         CORE_HOOK_C_FIX_SRC="$KERNEL_PATCHES_FOLDER/core_hook.c_fix.patch"
-        SUSFS_PATCH_50_DST="./common/50_add_susfs.patch"
-        HIDE_STUFF_PATCH_69_DST="./common/69_hide_stuff.patch"
+        SUSFS_PATCH_50_DST="./50_add_susfs.patch"
+        HIDE_STUFF_PATCH_69_DST="./69_hide_stuff.patch"
         KSU_SUSFS_PATCH_10_DST="./KernelSU-Next/10_enable_susfs_for_ksu.patch"
         SELINUX_C_FIX_DST="./selinux.c_fix.patch"
         APK_SIGN_C_FIX_DST="./apk_sign.c_fix.patch"
@@ -181,7 +181,7 @@ jobs:
         ls -l "$CORE_HOOK_C_FIX_SRC"
 
         echo "Copying patch files..."
-        mkdir -p ./common/fs ./common/include/linux ./KernelSU-Next ./common
+        mkdir -p ./fs ./include/linux ./KernelSU-Next
         cp "$SUSFS_PATCH_50_SRC" "$SUSFS_PATCH_50_DST"
         cp "$HIDE_STUFF_PATCH_69_SRC" "$HIDE_STUFF_PATCH_69_DST"
         cp "$KSU_SUSFS_PATCH_10_SRC" "$KSU_SUSFS_PATCH_10_DST"
