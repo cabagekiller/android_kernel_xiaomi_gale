@@ -131,6 +131,7 @@ jobs:
 
         git clone https://gitlab.com/simonpunk/susfs4ksu.git -b kernel-4.19 susfs4ksu # Clone directly in workspace
         git clone https://github.com/TheWildJames/kernel_patches.git kernel_patches # Clone directly in workspace
+        git clone https://github.com/cabagekiller/Non-GKI-Patches.git patches_repo
 
         cd kernel_tree # Now change to kernel_tree for the rest of the steps
         mkdir -p common/fs common/include/linux # Create directories upfront
@@ -262,12 +263,12 @@ jobs:
         EOF
     - name: Make the script files executable and run it
       run: |
-         echo "Current working directory:"
-         pwd  # Print current working directory
-         ls -l patches.sh  # List patches.sh explicitly
-         ls -l .         # List all files in current directory
-         chmod +x patches.sh
-         ./patches.sh
+         cd "$KERNEL_FOLDER"
+         echo "Current working directory after cd KERNEL_FOLDER:"
+         pwd
+         # Corrected path to patches.sh - now inside 'patches_repo' directory
+         chmod +x ../patches_repo/patches.sh
+         ./../patches_repo/patches.sh
     - name: Building kernel
       id: build
       run: |
