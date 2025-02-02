@@ -135,7 +135,7 @@ jobs:
         cd kernel_tree # Now change to kernel_tree for the rest of the steps
         mkdir -p common/fs common/include/linux # Create directories upfront
 
-    - name: Apply KernelSU and SUSFS patches
+   - name: Apply KernelSU and SUSFS patches
       run: |
         set -e
         KERNEL_FOLDER="${{ steps.kernel.outputs.kernel-folder }}"
@@ -197,24 +197,22 @@ jobs:
         cd KernelSU-Next
         echo "Current working directory (KernelSU-Next):"
         pwd
-        patch -p1 < 10_enable_susfs_for_ksu.patch || true
+        patch -p1 -N < 10_enable_susfs_for_ksu.patch || true
         cd .. # Back to kernel root
         echo "--- KernelSU Patch applied ---"
 
 
         # --- Apply SUSFS and Hide Stuff Patches ---
-        echo "--- Applying SUSFS and Hide Stuff Patches (common dir) ---"
-        cd common
-        echo "Current working directory (common) BEFORE patch:"
+        echo "--- Applying SUSFS and Hide Stuff Patches (Kernel Root dir) ---" # Note: Kernel Root dir now
+        echo "Current working directory (Kernel Root) BEFORE SUSFS patches:" # Note: Kernel Root dir
         pwd
-        ls -l fs/Makefile # Double check fs/Makefile exists here
+        echo "Listing fs/Makefile before SUSFS patches:" # Listing from Kernel Root
+        ls -l ./fs/Makefile # Corrected path to fs/Makefile
         echo "Applying 50_add_susfs.patch..."
         patch -p1 -N < 50_add_susfs.patch || true
         echo "Applying 69_hide_stuff.patch..."
         patch -p1 -F 3 -N < 69_hide_stuff.patch || true
-        sed -i '/obj-$(CONFIG_KSU_SUSFS_SUS_SU) += sus_su.o/d' ./fs/Makefile
-        cd .. # Back to kernel root
-        echo "Current working directory (Kernel Root) AFTER common patches:"
+        echo "Current working directory (Kernel Root) AFTER SUSFS patches:" # Note: Kernel Root dir
         pwd
         echo "--- SUSFS and Hide Stuff Patches applied ---"
 
@@ -226,18 +224,22 @@ jobs:
         echo "Listing fs/proc directory before remaining patches:"
         ls -l fs/proc/ # Check if fs/proc directory and files exist
         echo "Applying selinux.c_fix.patch..."
-        patch -p1 -F 3 < selinux.c_fix.patch || true
+        patch -p1 -F 3 -N < selinux.c_fix.patch || true
         echo "Applying apk_sign.c_fix.patch..."
-        patch -p1 -F 3 < apk_sign.c_fix.patch || true
+        patch -p1 -F 3 -N < apk_sign.c_fix.patch || true
         echo "Applying Makefile_fix.patch..."
-        patch -p1 --fuzz=3 < Makefile_fix.patch || true
+        patch -p1 --fuzz=3 -N < Makefile_fix.patch || true # Added -N here
         echo "Applying core_hook.c_fix.patch..."
-        patch -p1 --fuzz=3 < core_hook.c_fix.patch || true
+        patch -p1 --fuzz=3 -N < core_hook.c_fix.patch || true # Added -N here
         echo "--- Remaining patches applied ---"
 
-
-        sed -i '2s/check_defconfig//' ./common/build.config.gki
-        sed -i '/obj-$(CONFIG_KSU_SUSFS_SUS_SU) += sus_su.o/d' ./fs/Makefile
+        # --- Corrected fs/Makefile and build.config.gki operations (Kernel Root Dir) ---
+        echo "--- Applying fs/Makefile and build.config.gki changes (Kernel Root Dir) ---"
+        echo "Current working directory (Kernel Root) for Makefile/config changes:"
+        pwd
+        sed -i '2s/check_defconfig//' ./common/build.config.gki # Operate on build.config.gki from kernel root
+        sed -i '/obj-$(CONFIG_KSU_SUSFS_SUS_SU) += sus_su.o/d' ./fs/Makefile # Corrected path to ./fs/Makefile
+        echo "fs/Makefile and build.config.gki changes applied."
 
         # Add SUSFS configuration settings (using a block echo for clarity) - Keep this section
         cat >> ./common/arch/arm64/configs/gki_defconfig <<EOF
