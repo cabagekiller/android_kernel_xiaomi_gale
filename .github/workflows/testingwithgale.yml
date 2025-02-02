@@ -125,13 +125,14 @@ jobs:
       run: |
         set -e
         WORKSPACE_FOLDER="${{ steps.workspace.outputs.workspace-folder }}"
-        cd "$WORKSPACE_FOLDER"
+        cd "$WORKSPACE_FOLDER" # Change to workspace folder first!
         git clone --depth=1 ${{ github.event.inputs.KERNEL_TREE }} -b ${{ github.event.inputs.KERNEL_TREE_BRANCH }} kernel_tree
         echo "kernel-folder=$(pwd)/kernel_tree" >> $GITHUB_OUTPUT
 
-        cd kernel_tree
-        git clone https://gitlab.com/simonpunk/susfs4ksu.git -b kernel-4.19 ../susfs4ksu
-        git clone https://github.com/TheWildJames/kernel_patches.git ../kernel_patches
+        git clone https://gitlab.com/simonpunk/susfs4ksu.git -b kernel-4.19 susfs4ksu # Clone directly in workspace
+        git clone https://github.com/TheWildJames/kernel_patches.git kernel_patches # Clone directly in workspace
+
+        cd kernel_tree # Now change to kernel_tree for the rest of the steps
         mkdir -p common/fs common/include/linux # Create directories upfront
 
     - name: Apply KernelSU and SUSFS patches
