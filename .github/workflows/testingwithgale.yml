@@ -262,8 +262,7 @@ jobs:
         EOF
     - name: Make the script files executable and run it
       run: |
-         cd "$KERNEL_FOLDER"
-         echo "Current working directory after cd KERNEL_FOLDER:"
+         echo "Current working directory:"
          pwd  # Print current working directory
          ls -l patches.sh  # List patches.sh explicitly
          ls -l .         # List all files in current directory
