@@ -135,7 +135,7 @@ jobs:
         cd kernel_tree # Now change to kernel_tree for the rest of the steps
         mkdir -p common/fs common/include/linux # Create directories upfront
 
-   - name: Apply KernelSU and SUSFS patches
+    - name: Apply KernelSU and SUSFS patches
       run: |
         set -e
         KERNEL_FOLDER="${{ steps.kernel.outputs.kernel-folder }}"
