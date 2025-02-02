@@ -139,36 +139,31 @@ jobs:
       run: |
         set -e
         KERNEL_FOLDER="${{ steps.kernel.outputs.kernel-folder }}"
-        WORKSPACE_FOLDER="${{ steps.workspace.outputs.workspace-folder }}" # Add workspace folder variable
+        WORKSPACE_FOLDER="${{ steps.workspace.outputs.workspace-folder }}"
+
         cd "$KERNEL_FOLDER" # Explicitly change to kernel root directory
+        echo "Current working directory (Kernel Root) before patching:"
+        pwd
 
-        echo "Current working directory before patching:"
-        pwd # Log current working directory
-
-        # Apply KernelSU Next
-        rm -rf KernelSU-Next
+        # Apply KernelSU Next (Run ONCE - ensure no repeated execution in workflow)
+        echo "--- Setting up KernelSU-Next ---"
+        rm -rf KernelSU-Next # Ensure fresh setup each time
         curl -LSs "https://raw.githubusercontent.com/rifsxd/KernelSU-Next/next/kernel/setup.sh" | bash -s next-susfs
+        echo "--- KernelSU-Next setup complete ---"
 
-         mkdir -p ./common/fs
-         mkdir -p ./common/include/linux
-          
-          echo "--- Debugging Patch File Copying ---"
 
-        # Define source patch paths (absolute paths from workspace root for clarity)
+        # --- Debugging and Corrected Patch Copying (same as before) ---
+        echo "--- Debugging Patch File Copying ---"
         SUSFS4KSU_PATCHES_FOLDER="$WORKSPACE_FOLDER/susfs4ksu/kernel_patches"
         KERNEL_PATCHES_FOLDER="$WORKSPACE_FOLDER/kernel_patches"
-
-        SUSFS_PATCH_50_SRC="$SUSFS4KSU_PATCHES_FOLDER/50_add_susfs_in_kernel-4.19.patch" # Use 4.19 patch again
+        SUSFS_PATCH_50_SRC="$SUSFS4KSU_PATCHES_FOLDER/50_add_susfs_in_kernel-4.19.patch"
         HIDE_STUFF_PATCH_69_SRC="$KERNEL_PATCHES_FOLDER/69_hide_stuff.patch"
         KSU_SUSFS_PATCH_10_SRC="$SUSFS4KSU_PATCHES_FOLDER/KernelSU/10_enable_susfs_for_ksu.patch"
         SELINUX_C_FIX_SRC="$KERNEL_PATCHES_FOLDER/selinux.c_fix.patch"
         APK_SIGN_C_FIX_SRC="$KERNEL_PATCHES_FOLDER/apk_sign.c_fix.patch"
         MAKEFILE_FIX_SRC="$KERNEL_PATCHES_FOLDER/Makefile_fix.patch"
         CORE_HOOK_C_FIX_SRC="$KERNEL_PATCHES_FOLDER/core_hook.c_fix.patch"
-
-
-        # Define destination paths in kernel tree
-        SUSFS_PATCH_50_DST="./common/50_add_susfs.patch" # Simplified destination names
+        SUSFS_PATCH_50_DST="./common/50_add_susfs.patch"
         HIDE_STUFF_PATCH_69_DST="./common/69_hide_stuff.patch"
         KSU_SUSFS_PATCH_10_DST="./KernelSU-Next/10_enable_susfs_for_ksu.patch"
         SELINUX_C_FIX_DST="./selinux.c_fix.patch"
@@ -176,8 +171,6 @@ jobs:
         MAKEFILE_FIX_DST="./Makefile_fix.patch"
         CORE_HOOK_C_FIX_DST="./core_hook.c_fix.patch"
 
-
-        # --- Verify source patch files exist BEFORE copying ---
         echo "Checking source patch file existence:"
         ls -l "$SUSFS_PATCH_50_SRC"
         ls -l "$HIDE_STUFF_PATCH_69_SRC"
@@ -187,10 +180,8 @@ jobs:
         ls -l "$MAKEFILE_FIX_SRC"
         ls -l "$CORE_HOOK_C_FIX_SRC"
 
-
-        # --- Copy patch files ---
         echo "Copying patch files..."
-        mkdir -p ./common/fs ./common/include/linux ./KernelSU-Next ./common # Ensure destination directories exist
+        mkdir -p ./common/fs ./common/include/linux ./KernelSU-Next ./common
         cp "$SUSFS_PATCH_50_SRC" "$SUSFS_PATCH_50_DST"
         cp "$HIDE_STUFF_PATCH_69_SRC" "$HIDE_STUFF_PATCH_69_DST"
         cp "$KSU_SUSFS_PATCH_10_SRC" "$KSU_SUSFS_PATCH_10_DST"
@@ -201,20 +192,48 @@ jobs:
         echo "Patch files copied."
 
 
-        # --- Apply patches (from DESTINATION paths now) ---
-        echo "Applying patches..."
+        # --- Apply KernelSU Patch ---
+        echo "--- Applying KernelSU Patch (KernelSU-Next dir) ---"
         cd KernelSU-Next
+        echo "Current working directory (KernelSU-Next):"
+        pwd
         patch -p1 < 10_enable_susfs_for_ksu.patch || true
-        cd ../common
-        patch -p1 < 50_add_susfs.patch || true # Use simplified destination name
-        patch -p1 -F 3 < 69_hide_stuff.patch || true # Use simplified destination name
+        cd .. # Back to kernel root
+        echo "--- KernelSU Patch applied ---"
+
+
+        # --- Apply SUSFS and Hide Stuff Patches ---
+        echo "--- Applying SUSFS and Hide Stuff Patches (common dir) ---"
+        cd common
+        echo "Current working directory (common) BEFORE patch:"
+        pwd
+        ls -l fs/Makefile # Double check fs/Makefile exists here
+        echo "Applying 50_add_susfs.patch..."
+        patch -p1 -N < 50_add_susfs.patch || true
+        echo "Applying 69_hide_stuff.patch..."
+        patch -p1 -F 3 -N < 69_hide_stuff.patch || true
         sed -i '/obj-$(CONFIG_KSU_SUSFS_SUS_SU) += sus_su.o/d' ./fs/Makefile
         cd .. # Back to kernel root
+        echo "Current working directory (Kernel Root) AFTER common patches:"
+        pwd
+        echo "--- SUSFS and Hide Stuff Patches applied ---"
+
+
+        # --- Apply remaining patches (selinux.c_fix, etc.) ---
+        echo "--- Applying remaining patches (Kernel Root dir) ---"
+        echo "Current working directory (Kernel Root) BEFORE remaining patches:"
+        pwd
+        echo "Listing fs/proc directory before remaining patches:"
+        ls -l fs/proc/ # Check if fs/proc directory and files exist
+        echo "Applying selinux.c_fix.patch..."
         patch -p1 -F 3 < selinux.c_fix.patch || true
+        echo "Applying apk_sign.c_fix.patch..."
         patch -p1 -F 3 < apk_sign.c_fix.patch || true
+        echo "Applying Makefile_fix.patch..."
         patch -p1 --fuzz=3 < Makefile_fix.patch || true
+        echo "Applying core_hook.c_fix.patch..."
         patch -p1 --fuzz=3 < core_hook.c_fix.patch || true
-        echo "Patches applied."
+        echo "--- Remaining patches applied ---"
 
 
         sed -i '2s/check_defconfig//' ./common/build.config.gki
