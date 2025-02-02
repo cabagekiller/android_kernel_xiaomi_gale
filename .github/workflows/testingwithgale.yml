@@ -197,7 +197,7 @@ jobs:
         cd KernelSU-Next
         echo "Current working directory (KernelSU-Next):"
         pwd
-        patch -p1 -N < 10_enable_susfs_for_ksu.patch || true
+        #patch -p1 -N < 10_enable_susfs_for_ksu.patch || true
         cd .. # Back to kernel root
         echo "--- KernelSU Patch applied ---"
 
@@ -263,6 +263,10 @@ jobs:
     - name: Make the script files executable and run it
       run: |
          cd "$KERNEL_FOLDER"
+         echo "Current working directory after cd KERNEL_FOLDER:"
+         pwd  # Print current working directory
+         ls -l patches.sh  # List patches.sh explicitly
+         ls -l .         # List all files in current directory
          chmod +x patches.sh
          ./patches.sh
     - name: Building kernel
