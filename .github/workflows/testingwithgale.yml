@@ -242,6 +242,11 @@ jobs:
         sed -i '/obj-$(CONFIG_KSU_SUSFS_SUS_SU) += sus_su.o/d' ./fs/Makefile # Corrected path to ./fs/Makefile
         echo "fs/Makefile and build.config.gki changes applied."
 
+         # Copy SUSFS files
+        cp ../susfs4ksu/kernel_patches/fs/susfs.c ./common/fs/
+        cp ../susfs4ksu/kernel_patches/include/linux/susfs.h ./common/include/linux/
+        cp ../susfs4ksu/kernel_patches/include/linux/susfs_def.h ./common/include/linux/
+
         # Add SUSFS configuration settings (using a block echo for clarity) - Keep this section
         cat >> ./arch/arm64/configs/gki_defconfig <<EOF
         CONFIG_KSU=y
