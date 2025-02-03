@@ -146,6 +146,11 @@ jobs:
         echo "Current working directory (Kernel Root) before patching:"
         pwd
 
+        # Copy SUSFS files
+        cp ../susfs4ksu/kernel_patches/fs/susfs.c ./common/fs/
+        cp ../susfs4ksu/kernel_patches/include/linux/susfs.h ./common/include/linux/
+        cp ../susfs4ksu/kernel_patches/include/linux/susfs_def.h ./common/include/linux/
+
         # Apply KernelSU Next (Run ONCE - ensure no repeated execution in workflow)
         echo "--- Setting up KernelSU-Next ---"
         rm -rf KernelSU-Next # Ensure fresh setup each time
@@ -225,13 +230,13 @@ jobs:
         echo "Listing fs/proc directory before remaining patches:"
         ls -l fs/proc/ # Check if fs/proc directory and files exist
         echo "Applying selinux.c_fix.patch..."
-        patch -p1 -F 3 -N < selinux.c_fix.patch || true
+        #patch -p1 -F 3 -N < selinux.c_fix.patch || true
         echo "Applying apk_sign.c_fix.patch..."
-        patch -p1 -F 3 -N < apk_sign.c_fix.patch || true
+        #patch -p1 -F 3 -N < apk_sign.c_fix.patch || true
         echo "Applying Makefile_fix.patch..."
-        patch -p1 --fuzz=3 -N < Makefile_fix.patch || true # Added -N here
+        #patch -p1 --fuzz=3 -N < Makefile_fix.patch || true # Added -N here
         echo "Applying core_hook.c_fix.patch..."
-        patch -p1 --fuzz=3 -N < core_hook.c_fix.patch || true # Added -N here
+        #patch -p1 --fuzz=3 -N < core_hook.c_fix.patch || true # Added -N here
         echo "--- Remaining patches applied ---"
 
         # --- Corrected fs/Makefile and build.config.gki operations (Kernel Root Dir) ---
@@ -241,11 +246,6 @@ jobs:
         sed -i '2s/check_defconfig//' ./build.config.gki # Operate on build.config.gki from kernel root
         sed -i '/obj-$(CONFIG_KSU_SUSFS_SUS_SU) += sus_su.o/d' ./fs/Makefile # Corrected path to ./fs/Makefile
         echo "fs/Makefile and build.config.gki changes applied."
-
-         # Copy SUSFS files
-        cp ../susfs4ksu/kernel_patches/fs/susfs.c ./common/fs/
-        cp ../susfs4ksu/kernel_patches/include/linux/susfs.h ./common/include/linux/
-        cp ../susfs4ksu/kernel_patches/include/linux/susfs_def.h ./common/include/linux/
 
         # Add SUSFS configuration settings (using a block echo for clarity) - Keep this section
         cat >> ./arch/arm64/configs/gki_defconfig <<EOF
