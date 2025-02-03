@@ -248,7 +248,7 @@ jobs:
         echo "fs/Makefile and build.config.gki changes applied."
 
         # Add SUSFS configuration settings (using a block echo for clarity) - Keep this section
-        cat >> ./arch/arm64/configs/gki_defconfig <<EOF
+        cat >> ./arch/arm64/configs/gale_defconfig <<EOF
         CONFIG_KSU=y
         CONFIG_KSU_SUSFS=y
         CONFIG_KSU_SUSFS_HAS_MAGIC_MOUNT=y
