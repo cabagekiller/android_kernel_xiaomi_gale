@@ -100,15 +100,20 @@ jobs:
         sudo apt install flex libncurses6 # Install dependencies for kernel build
         echo "tools-folder=$(pwd)" >> $GITHUB_OUTPUT
 
+    - name: Setup Workspace Variable
+      id: workspace variable
+      run: |
+        echo "workspace-folder=${GITHUB_WORKSPACE}" >> $GITHUB_OUTPUT
+
     - name: Cache Clang
       uses: actions/cache@v4
       id: cache-clang
       with:
-        path: workspace/clang
-        key: clang-r547379-ubuntu-latest # Unique key for clang r547379 on ubuntu-latest
-        restore-keys: |
-          clang-r547379-ubuntu-latest
-          clang-r547379-
+       path: ${{ steps.workspace.outputs.workspace-folder }}/clang
+       key: clang-r547379-ubuntu-latest
+       restore-keys: |
+         clang-r547379-ubuntu-latest
+         clang-r547379-
 
     - name: Download and Extract Clang
       if: steps.cache-clang.outputs.cache-hit != 'true'
@@ -120,6 +125,14 @@ jobs:
         mkdir clang
         tar -xf clang.tar.gz -C clang
         echo "Clang downloaded and extracted."
+
+    - name: Verify Clang is Cached
+      if: steps.cache-clang.outputs.cache-hit == 'true'
+      run: echo "Clang was restored from the cache!"
+
+    - name: Verify Clang is Downloaded and Extracted
+      if: steps.cache-clang.outputs.cache-hit != 'true'
+      run: echo "Clang was downloaded and extracted!"
 
     - name: Setup ccache
       uses: hendrikmuhs/ccache-action@v1.2
