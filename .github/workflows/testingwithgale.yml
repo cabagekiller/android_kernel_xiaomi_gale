@@ -244,6 +244,7 @@ jobs:
         git add -A && git commit -a -m "BUILD Kernel" || true
         cd ..
         git add -A && git commit -a -m "BUILD Kernel" || true
+        git rm --cached KernelSU-Next
 
 
         # --- Apply remaining patches (selinux.c_fix, etc.) ---
