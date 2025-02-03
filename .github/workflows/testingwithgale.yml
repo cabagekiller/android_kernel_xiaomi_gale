@@ -222,7 +222,7 @@ jobs:
         cd KernelSU-Next
         echo "Current working directory (KernelSU-Next):"
         pwd
-        patch -p1 -N < 10_enable_susfs_for_ksu.patch || true
+        #patch -p1 -N < 10_enable_susfs_for_ksu.patch || true
         cd .. # Back to kernel root
         echo "--- KernelSU Patch applied ---"
 
