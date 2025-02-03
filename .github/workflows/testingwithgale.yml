@@ -101,7 +101,7 @@ jobs:
         echo "tools-folder=$(pwd)" >> $GITHUB_OUTPUT
 
     - name: Setup Workspace Variable
-      id: workspace variable
+      id: variable
       run: |
         echo "workspace-folder=${GITHUB_WORKSPACE}" >> $GITHUB_OUTPUT
 
