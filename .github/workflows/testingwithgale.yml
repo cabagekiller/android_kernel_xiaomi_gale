@@ -222,6 +222,11 @@ jobs:
         echo "Current working directory (Kernel Root) AFTER SUSFS patches:" # Note: Kernel Root dir
         pwd
         echo "--- SUSFS and Hide Stuff Patches applied ---"
+        cd ./common
+        git add -A && git commit -a -m "BUILD Kernel"
+        cd ..
+        cd ./msm-kernel && git add -A && git commit -a -m "BUILD Kernel"
+        cd ..
 
 
         # --- Apply remaining patches (selinux.c_fix, etc.) ---
