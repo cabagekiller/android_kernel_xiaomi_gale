@@ -228,9 +228,9 @@ jobs:
         pwd
         echo "--- SUSFS and Hide Stuff Patches applied ---"
         cd ./common
-        git add -A && git commit -a -m "BUILD Kernel"
+        git add -A && git commit -a -m "BUILD Kernel" || true
         cd ..
-        git add -A && git commit -a -m "BUILD Kernel"
+        git add -A && git commit -a -m "BUILD Kernel" || true
 
 
         # --- Apply remaining patches (selinux.c_fix, etc.) ---
