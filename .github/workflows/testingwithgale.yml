@@ -231,7 +231,6 @@ jobs:
         git add -A && git commit -a -m "BUILD Kernel"
         cd ..
         cd ./msm-kernel && git add -A && git commit -a -m "BUILD Kernel"
-        cd ..
 
 
         # --- Apply remaining patches (selinux.c_fix, etc.) ---
