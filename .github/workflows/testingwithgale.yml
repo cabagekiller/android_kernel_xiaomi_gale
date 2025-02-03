@@ -57,6 +57,11 @@ jobs:
         echo "Second AnyKernel Url: ${{ github.event.inputs.SECOND_ANYKERNEL_URL }}/tree/${{ github.event.inputs.SECOND_ANYKERNEL_BRANCH }}"
         echo "::endgroup::"
 
+    - name: Configure Git
+      run: |
+         git config --global user.name "build"
+         git config --global user.email "3436378798@qq.com"
+
     - name: Initialize workspace and tools
       id: workspace
       run: |
