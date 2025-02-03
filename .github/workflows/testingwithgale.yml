@@ -173,7 +173,7 @@ jobs:
         # Apply KernelSU Next (Run ONCE - ensure no repeated execution in workflow)
         echo "--- Setting up KernelSU-Next ---"
         rm -rf KernelSU-Next # Ensure fresh setup each time
-        curl -LSs "https://raw.githubusercontent.com/rifsxd/KernelSU-Next/next/kernel/setup.sh" | bash -s next-susfs
+        curl -LSs "https://raw.githubusercontent.com/rifsxd/KernelSU-Next/next/kernel/setup.sh" | bash -s next
         echo "--- KernelSU-Next setup complete ---"
 
 
@@ -222,7 +222,7 @@ jobs:
         cd KernelSU-Next
         echo "Current working directory (KernelSU-Next):"
         pwd
-        #patch -p1 -N < 10_enable_susfs_for_ksu.patch || true
+        patch -p1 -N < 10_enable_susfs_for_ksu.patch || true
         cd .. # Back to kernel root
         echo "--- KernelSU Patch applied ---"
 
