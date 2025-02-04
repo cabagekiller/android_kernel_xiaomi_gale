@@ -1,6 +1,6 @@
-name:Absolute Kernel Build (gale) - SUSFS + KSU NEXT | clang-r547379
+ name: Kernel Builddwadawd (gale) - SUSFS + KSU NEXT | clang-r547379
 
-on:
+ on:
   pull_request:
   workflow_dispatch:
     inputs:
@@ -21,7 +21,7 @@ on:
         required: true
       ANYKERNEL_URL:
         description: 'AnyKernel Url (leave blank if you dont want AnyKernel)'
-        default: 'https://github.com/TheWildJames/AnyKernel3.git -b android-4.19'
+        default: 'https://github.com/DjSenseii1/f4aosp'
         required: false
       ANYKERNEL_BRANCH:
         description: 'AnyKernel Branch (defaults to codename)'
@@ -29,7 +29,7 @@ on:
         required: false
       SECOND_ANYKERNEL_URL:
         description: 'Second AnyKernel Url (leave blank if you dont want AnyKernel)'
-        default: 'https://github.com/TheWildJames/AnyKernel3.git -b android-4.19'
+        default: 'https://github.com/DjSenseii1/miui-hyperF4'
         required: false
       SECOND_ANYKERNEL_BRANCH:
         description: 'Second AnyKernel Branch (defaults to codename)'
@@ -40,7 +40,7 @@ on:
         type: boolean
         default: false
 
-jobs:
+ jobs:
   build:
     if: github.event.repository.owner.id == github.event.sender.id
     runs-on: ubuntu-latest
@@ -200,7 +200,7 @@ jobs:
           SUSFS_PATCH_50_DST="$KERNEL_FOLDER/50_add_susfs.patch"
           HIDE_STUFF_PATCH_69_DST="$KERNEL_FOLDER/69_hide_stuff.patch"
           KSU_SUSFS_PATCH_10_DST="$KERNEL_FOLDER/KernelSU-Next/10_enable_susfs_for_ksu.patch"
-          SELINUX_C_FIX_DST="$KERNEL_FOLDER/selinux.c_fix.patch"
+          SELINUX_C_FIX_DST="$KERNEL_FOLDER/selinux.c.fix.patch"
           APK_SIGN_C_FIX_DST="$KERNEL_FOLDER/apk_sign.c.fix.patch"
           MAKEFILE_FIX_DST="$KERNEL_FOLDER/Makefile_fix.patch"
           CORE_HOOK_C_FIX_DST="$KERNEL_FOLDER/core_hook.c.fix.patch"
@@ -353,9 +353,16 @@ jobs:
               # Clone into an absolute path under the boot folder
               git clone --recursive --depth=1 "$ak_url" -b "$ak_branch_final" "$BOOT_FOLDER/$ak_folder_name"
 
-              if [ -e "$BOOT_FOLDER/Image.gz" ]; then cp -f "$BOOT_FOLDER/Image.gz" "$BOOT_FOLDER/$ak_folder_name"; fi
-              if [ -e "$BOOT_FOLDER/dtb.img" ]; then mv -f "$BOOT_FOLDER/dtb.img" "$BOOT_FOLDER/dtb"; cp -f "$BOOT_FOLDER/dtb" "$BOOT_FOLDER/$ak_folder_name/dtb"; fi
-              if [ -e "$BOOT_FOLDER/dtbo.img" ]; then cp -f "$BOOT_FOLDER/dtbo.img" "$BOOT_FOLDER/$ak_folder_name"; fi
+              if [ -e "$BOOT_FOLDER/Image.gz" ]; then
+                cp -f "$BOOT_FOLDER/Image.gz" "$BOOT_FOLDER/$ak_folder_name"
+              fi
+              if [ -e "$BOOT_FOLDER/dtb.img" ]; then
+                mv -f "$BOOT_FOLDER/dtb.img" "$BOOT_FOLDER/dtb"
+                cp -f "$BOOT_FOLDER/dtb" "$BOOT_FOLDER/$ak_folder_name/dtb"
+              fi
+              if [ -e "$BOOT_FOLDER/dtbo.img" ]; then
+                cp -f "$BOOT_FOLDER/dtbo.img" "$BOOT_FOLDER/$ak_folder_name"
+              fi
 
               local zip_name="${ak_name_prefix}-KSUNEXT-SUSFS-${{ github.event.inputs.CODENAME }}.zip"
               cd "$BOOT_FOLDER/$ak_folder_name"
